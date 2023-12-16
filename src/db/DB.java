@@ -4,10 +4,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 public class DB {
+  private DB() {
+    throw new IllegalStateException("DB is not initialized");
+  }
+
   private static Connection connection = null;
 
   public static Connection getConnection() {
@@ -40,6 +46,22 @@ public class DB {
       props.load(fs);
       return props;
     } catch (IOException e) {
+      throw new DbException(e.getMessage());
+    }
+  }
+
+  public static void closeStatement(Statement statement) {
+    try {
+      statement.close();
+    } catch (Exception e) {
+      throw new DbException(e.getMessage());
+    }
+  }
+
+  public static void closeResultSet(ResultSet resultSet) {
+    try {
+      resultSet.close();
+    } catch (Exception e) {
       throw new DbException(e.getMessage());
     }
   }
