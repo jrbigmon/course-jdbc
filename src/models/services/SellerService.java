@@ -6,24 +6,31 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Stream;
 
+import db.DB;
 import db.DbException;
 import models.entities.Seller;
+import models.utils.SQLQuery;
 
 public class SellerService {
   private Connection connection = null;
+  private String tableName;
 
-  public SellerService(Connection connection) {
+  public SellerService(Connection connection, String tableName) {
     this.connection = connection;
+    this.tableName = tableName;
   }
 
-  public Stream<Seller> getList(Integer limit) {
-    try (Statement stt = connection.createStatement()) {
+  public Stream<Seller> getList(String where, Integer limit) {
+    Statement stt = null;
+    ResultSet result = null;
+
+    try {
       var list = new ArrayList<Seller>();
 
-      ResultSet result = stt.executeQuery("SELECT * FROM seller limit " + limit + ";");
+      stt = connection.createStatement();
+      result = stt.executeQuery(SQLQuery.getList(tableName, null, where, null, limit));
 
       while (result.next()) {
         Integer id = result.getInt("Id");
@@ -41,6 +48,9 @@ public class SellerService {
       return list.stream();
     } catch (SQLException e) {
       throw new DbException(e.getMessage());
+    } finally {
+      DB.closeStatement(stt);
+      DB.closeResultSet(null);
     }
   }
 }
