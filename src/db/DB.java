@@ -51,18 +51,23 @@ public class DB {
   }
 
   public static void closeStatement(Statement statement) {
-    try {
-      statement.close();
-    } catch (Exception e) {
-      throw new DbException(e.getMessage());
+    if (statement != null) {
+      try {
+        statement.close();
+      } catch (Exception e) {
+        throw new DbException(e.getMessage());
+      }
     }
+
   }
 
   public static void closeResultSet(ResultSet resultSet) {
-    try {
-      resultSet.close();
-    } catch (Exception e) {
-      throw new DbException(e.getMessage());
+    if (resultSet != null) {
+      try {
+        resultSet.close();
+      } catch (Exception e) {
+        throw new DbException(e.getMessage());
+      }
     }
   }
 }
