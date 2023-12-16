@@ -9,9 +9,10 @@ public class Program {
   public static void main(String[] args) throws Exception {
     Connection connection = DB.getConnection();
 
-    SellerService sellerService = new SellerService(connection);
+    SellerService sellerService = new SellerService(connection, "seller");
 
-    sellerService.getList(10).forEach(System.out::println);
+    sellerService.getList(null, null)
+        .forEach(System.out::println);
 
     DB.closeConnection();
   }
