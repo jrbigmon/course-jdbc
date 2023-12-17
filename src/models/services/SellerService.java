@@ -1,9 +1,12 @@
 package models.services;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.stream.Stream;
@@ -16,6 +19,9 @@ import models.utils.SQLQuery;
 public class SellerService {
   private Connection connection = null;
   private String tableName;
+  private String[] columnsSelect = new String[] { "Id", "Name", "Email", "BirthDate", "BaseSalary", "DepartmentId" };
+  private String[] columnsInsert = new String[] { "Name", "Email", "BirthDate", "BaseSalary", "DepartmentId" };
+  private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
   public SellerService(Connection connection, String tableName) {
     this.connection = connection;
@@ -30,7 +36,7 @@ public class SellerService {
       var list = new ArrayList<Seller>();
 
       stt = connection.createStatement();
-      result = stt.executeQuery(SQLQuery.getList(tableName, null, where, null, limit));
+      result = stt.executeQuery(SQLQuery.getList(tableName, columnsSelect, where, null, limit));
 
       while (result.next()) {
         Integer id = result.getInt("Id");
@@ -51,6 +57,41 @@ public class SellerService {
     } finally {
       DB.closeStatement(stt);
       DB.closeResultSet(null);
+    }
+  }
+
+  public Integer create(String name, String email, String birthDate, Double baseSalary, Integer departmentId) {
+    PreparedStatement preparedStatement = null;
+    ResultSet result = null;
+
+    try {
+      preparedStatement = connection.prepareStatement(
+          SQLQuery.create(tableName, columnsInsert), Statement.RETURN_GENERATED_KEYS);
+
+      preparedStatement.setString(1, name);
+      preparedStatement.setString(2, email);
+      preparedStatement.setDate(3, new java.sql.Date(sdf.parse(birthDate).getTime()));
+      preparedStatement.setDouble(4, baseSalary);
+      preparedStatement.setInt(5, departmentId);
+
+      Integer rowsEffected = preparedStatement.executeUpdate();
+
+      Integer id = null;
+
+      if (rowsEffected > 0) {
+        result = preparedStatement.getGeneratedKeys();
+
+        while (result.next()) {
+          id = result.getInt(1);
+        }
+      }
+
+      return id;
+    } catch (SQLException | ParseException e) {
+      throw new DbException(e.getMessage());
+    } finally {
+      DB.closeStatement(preparedStatement);
+      DB.closeResultSet(result);
     }
   }
 }
