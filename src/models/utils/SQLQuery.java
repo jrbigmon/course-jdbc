@@ -24,6 +24,20 @@ public class SQLQuery {
     return replacements += ")";
   }
 
+  private static String getReplacementsToUpdate(String[] columns) {
+    Integer columnsLength = columns.length;
+    String replacements = "";
+
+    for (int i = 0; i < columnsLength; i++) {
+      replacements += columns[i] + " = ?";
+      if (i != columnsLength - 1) {
+        replacements += ", ";
+      }
+    }
+
+    return replacements;
+  }
+
   public static String getList(String tableName, String[] columns, String where, String[] joins, Integer limit) {
     if (tableName == null) {
       throw new IllegalArgumentException("tableName is required");
@@ -46,5 +60,17 @@ public class SQLQuery {
         + "VALUES "
         + getReplacements(columns.length)
         + ";";
+  }
+
+  public static String update(String tableName, String[] columns, int id) {
+    return "UPDATE "
+        + tableName
+        + " SET "
+        + getReplacementsToUpdate(columns)
+        + " WHERE "
+        + "id = "
+        + id
+        + ";";
+
   }
 }
