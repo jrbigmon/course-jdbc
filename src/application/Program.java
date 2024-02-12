@@ -1,9 +1,11 @@
 package application;
 
 import java.sql.Connection;
+import java.util.stream.Stream;
 
 import db.DB;
 import models.entities.Department;
+import models.entities.Seller;
 import models.services.DepartmentService;
 import models.services.SellerService;
 
@@ -28,8 +30,11 @@ public class Program {
 
     System.out.println("Seller id created: " + sellerIdCreated);
 
-    sellerService.getList(null, null)
-        .forEach(System.out::println);
+    sellerService.update(sellerIdCreated, "Testando 123", "testan@mail.com", "29/10/1997", 3000.00, 1);
+
+    Stream<Seller> seller = sellerService.getList(null, null);
+
+    seller.forEach(System.out::println);
 
     DB.closeConnection();
   }
