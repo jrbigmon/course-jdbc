@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import db.DB;
 import db.DbException;
+import db.DbExceptionMessages;
 import models.entities.Seller;
 import models.utils.SQLQuery;
 
@@ -98,16 +99,41 @@ public class SellerService {
 
   public Boolean update(Integer id, String name, String email, String birthDate, Double baseSalary,
       Integer departmentId) {
+    if (id == null) {
+      throw new DbException(DbExceptionMessages.ID_CANNOT_BE_NULL);
+    }
+
     PreparedStatement preparedStatement = null;
 
     try {
-      preparedStatement = connection.prepareStatement(SQLQuery.update(tableName, columnsUpdate, id));
+      preparedStatement = connection.prepareStatement(SQLQuery.updateById(tableName, columnsUpdate, id));
 
       preparedStatement.setString(1, name);
       preparedStatement.setString(2, email);
       preparedStatement.setDate(3, new java.sql.Date(sdf.parse(birthDate).getTime()));
       preparedStatement.setDouble(4, baseSalary);
       preparedStatement.setInt(5, departmentId);
+
+      int rowsEffected = preparedStatement.executeUpdate();
+
+      return rowsEffected > 0;
+    } catch (Exception e) {
+      throw new DbException(e.getMessage());
+    } finally {
+      DB.closeStatement(preparedStatement);
+    }
+
+  }
+
+  public Boolean delete(Integer id) {
+    if (id == null) {
+      throw new DbException(DbExceptionMessages.ID_CANNOT_BE_NULL);
+    }
+
+    PreparedStatement preparedStatement = null;
+
+    try {
+      preparedStatement = connection.prepareStatement(SQLQuery.deleteById(tableName, id));
 
       int rowsEffected = preparedStatement.executeUpdate();
 
