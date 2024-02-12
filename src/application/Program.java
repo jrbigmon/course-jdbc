@@ -1,6 +1,9 @@
 package application;
 
 import java.sql.Connection;
+import java.util.Comparator;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import db.DB;
@@ -30,12 +33,15 @@ public class Program {
 
     System.out.println("Seller id created: " + sellerIdCreated);
 
-    sellerService.update(sellerIdCreated, "Testando 123", "testan@mail.com", "29/10/1997", 3000.00, 1);
+    sellerService.update(35, "Tenente test", "tenenttest@mail.com",
+        "29/10/1997", 3000.00, 1);
 
-    Stream<Seller> seller = sellerService.getList(null, null);
+    sellerService.delete(30);
 
-    seller.forEach(System.out::println);
+    var sellers = sellerService.getList(null, null).sorted(Comparator.comparing(Seller::getId))
+        .collect(Collectors.toList());
 
+    sellers.forEach(System.out::println);
     DB.closeConnection();
   }
 }
