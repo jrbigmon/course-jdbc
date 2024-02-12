@@ -70,4 +70,45 @@ public class DB {
       }
     }
   }
+
+  public static void initTransaction(Connection connection, int isolationLevel) {
+    if (connection != null) {
+      try {
+        connection.setAutoCommit(false);
+        connection.setTransactionIsolation(isolationLevel);
+      } catch (SQLException e) {
+        throw new DbException(e.getMessage());
+      }
+    }
+  }
+
+  public static void initTransaction(Connection connection) {
+    if (connection != null) {
+      try {
+        connection.setAutoCommit(false);
+      } catch (SQLException e) {
+        throw new DbException(e.getMessage());
+      }
+    }
+  }
+
+  public static void commitTransaction(Connection connection) {
+    if (connection != null) {
+      try {
+        connection.commit();
+      } catch (SQLException e) {
+        throw new DbException(e.getMessage());
+      }
+    }
+  }
+
+  public static void rollbackTransaction(Connection connection) {
+    if (connection != null) {
+      try {
+        connection.rollback();
+      } catch (SQLException e) {
+        throw new DbException(e.getMessage());
+      }
+    }
+  }
 }
