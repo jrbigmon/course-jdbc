@@ -17,31 +17,25 @@ public class Program {
     Connection connection = DB.getConnection();
 
     SellerService sellerService = new SellerService(connection, "seller");
-    DepartmentService departmentService = new DepartmentService(connection,
-        "department");
 
-    var departments = departmentService.getList(null, null);
+    DB.initTransaction(connection, Connection.TRANSACTION_READ_UNCOMMITTED);
+    try {
+      sellerService.delete(3);
+      sellerService.delete(4);
+      sellerService.delete(5);
 
-    Department computerDepartment = departments.filter(d -> d.getName().equals("Computers")).findFirst().orElse(null);
+      int num = 2;
+      if (num < 2) {
+        throw new Error("fake error");
+      }
 
-    Integer sellerIdCreated = null;
-    if (computerDepartment != null) {
-      sellerIdCreated = sellerService.create("Vagner", "vagner@mail.com",
-          "20/10/1997", 2000.00,
-          computerDepartment.getId());
+      DB.commitTransaction(connection);
+      System.out.println("Successfully");
+    } catch (Exception e) {
+      DB.rollbackTransaction(connection);
+      e.printStackTrace();
+    } finally {
+      DB.closeConnection();
     }
-
-    System.out.println("Seller id created: " + sellerIdCreated);
-
-    sellerService.update(35, "Tenente test", "tenenttest@mail.com",
-        "29/10/1997", 3000.00, 1);
-
-    sellerService.delete(30);
-
-    var sellers = sellerService.getList(null, null).sorted(Comparator.comparing(Seller::getId))
-        .collect(Collectors.toList());
-
-    sellers.forEach(System.out::println);
-    DB.closeConnection();
   }
 }
