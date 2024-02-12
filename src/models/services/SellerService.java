@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import db.DB;
 import db.DbException;
 import db.DbExceptionMessages;
+import db.DbIntegrityException;
 import models.entities.Seller;
 import models.utils.SQLQuery;
 
@@ -138,8 +139,8 @@ public class SellerService {
       int rowsEffected = preparedStatement.executeUpdate();
 
       return rowsEffected > 0;
-    } catch (Exception e) {
-      throw new DbException(e.getMessage());
+    } catch (SQLException e) {
+      throw new DbIntegrityException(e.getMessage());
     } finally {
       DB.closeStatement(preparedStatement);
     }
