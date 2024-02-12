@@ -21,6 +21,7 @@ public class SellerService {
   private String tableName;
   private String[] columnsSelect = new String[] { "Id", "Name", "Email", "BirthDate", "BaseSalary", "DepartmentId" };
   private String[] columnsInsert = new String[] { "Name", "Email", "BirthDate", "BaseSalary", "DepartmentId" };
+  private String[] columnsUpdate = new String[] { "Name", "Email", "BirthDate", "BaseSalary", "DepartmentId" };
   private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
   public SellerService(Connection connection, String tableName) {
@@ -51,7 +52,7 @@ public class SellerService {
         list.add(seller);
       }
 
-      return list.stream();
+      return list.parallelStream();
     } catch (SQLException e) {
       throw new DbException(e.getMessage());
     } finally {
@@ -92,6 +93,29 @@ public class SellerService {
     } finally {
       DB.closeStatement(preparedStatement);
       DB.closeResultSet(result);
+    }
+  }
+
+  public Boolean update(Integer id, String name, String email, String birthDate, Double baseSalary,
+      Integer departmentId) {
+    PreparedStatement preparedStatement = null;
+
+    try {
+      preparedStatement = connection.prepareStatement(SQLQuery.update(tableName, columnsUpdate, id));
+
+      preparedStatement.setString(1, name);
+      preparedStatement.setString(2, email);
+      preparedStatement.setDate(3, new java.sql.Date(sdf.parse(birthDate).getTime()));
+      preparedStatement.setDouble(4, baseSalary);
+      preparedStatement.setInt(5, departmentId);
+
+      int rowsEffected = preparedStatement.executeUpdate();
+
+      return rowsEffected > 0;
+    } catch (Exception e) {
+      throw new DbException(e.getMessage());
+    } finally {
+      DB.closeStatement(preparedStatement);
     }
   }
 }
