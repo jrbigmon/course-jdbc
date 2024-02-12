@@ -62,15 +62,20 @@ public class SQLQuery {
         + ";";
   }
 
-  public static String update(String tableName, String[] columns, int id) {
+  public static String updateById(String tableName, String[] columns, int id) {
     return "UPDATE "
         + tableName
         + " SET "
         + getReplacementsToUpdate(columns)
         + " WHERE "
         + "id = "
-        + id
-        + ";";
+        + id;
+  }
 
+  public static String deleteById(String tableName, int id) {
+    return "DELETE FROM "
+        + tableName
+        + " WHERE id = "
+        + id;
   }
 }
